@@ -1,4 +1,4 @@
 BATCH_SIZE = 32
 OPTIM = "adam"
 LR = 0.01
-MAX_ITER = 20972
+MAX_ITER = 100
