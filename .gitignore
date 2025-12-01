@@ -208,3 +208,6 @@ __marimo__/
 
 # Personal test files
 scratch.ipynb
+
+# Too-large vector files
+data\state_b8d56cb4aa70_hs.npz
