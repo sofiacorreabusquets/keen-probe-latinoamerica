@@ -1,0 +1,3 @@
+[submodule "keen-source"]
+	path = keen-source
+	url = https://github.com/dhgottesman/keen_estimating_knowledge_in_llms
