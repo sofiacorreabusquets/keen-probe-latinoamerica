@@ -211,3 +211,4 @@ scratch.ipynb
 
 # Too-large vector files
 data/state_b8d56cb4aa70_hs.npz
+data/filtered_vectors.npz
