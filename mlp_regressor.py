@@ -13,6 +13,7 @@ import torch.nn as nn
 import torch.optim as optim
 
 import numpy as np
+import wandb
 
 import random
 from scipy.stats import pearsonr
@@ -89,8 +90,10 @@ class MLPRegressor(nn.Module):
             return result_df, test_loss, test_pearson_corr, test_pearson_p_value
 
     def fit(self, X_train, y_train, X_test, y_test):     
-        X_test = torch.tensor(X_test.tolist(), dtype=torch.float32).cuda()  
-        y_test = torch.tensor(y_test.tolist(), dtype=torch.float32).unsqueeze(dim=1).cuda()
+        X_test_np = np.array(X_test.tolist(), dtype=np.float32)
+        X_test = torch.from_numpy(X_test_np).cuda()
+        y_test_np = np.array(y_test.tolist(), dtype=np.float32).reshape(-1, 1)
+        y_test = torch.from_numpy(y_test_np).cuda()
         
         for epoch in range(self.max_iter):
             print(f"Epoch {epoch+1}/{self.max_iter}")
@@ -118,3 +121,5 @@ class MLPRegressor(nn.Module):
                 self.final_test = result_df
 
             print({"test_loss": test_loss, "train_loss": epoch_train_loss, "test_pearson_corr": test_pearson_corr})     
+            # wandb.log({"test_loss": test_loss, "train_loss": epoch_train_loss, "test_pearson_corr": test_pearson_corr})
+        # wandb.finish()
