@@ -1,0 +1,14 @@
+[project]
+name = "keen-probe-latinoamerica"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "numpy>=2.3.5",
+    "pandas>=2.3.3",
+    "scikit-learn>=1.7.2",
+    "scipy>=1.16.3",
+    "torch>=2.9.1",
+    "wandb>=0.23.1",
+]
