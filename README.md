@@ -6,26 +6,18 @@ Proyecto de entrenamiento de una sonda (probe) MLP para predecir scores basándo
 
 ```
 keen-probe-latinoamerica/
-├── data/                   # Directorio de datos
-│   ├── filter_vectors.ipynb       # Notebook para filtrar vectores según entidades
-│   ├── filtered_vectors.npz       # Vectores normalizados filtrados (X)
-│   ├── score_by_entity.json       # Scores por entidad (y)
-│   └── state_b8d56cb4aa70_hs.npz  # Vectores originales (gitignored por tamaño)
-├── hyperparams.py           # Hiperparámetros del modelo (batch size, optimizer, learning rate, max iterations)
-├── mlp_regressor.py        # MLPRegressor de código fuente KEEN debuggeado
-├── probe.ipynb             # Notebook principal para entrenar la sonda
-└── models/                 # Directorio de modelos entrenados
-    └── mlp_regressor_state_dict.pth  # Pesos del modelo entrenado
+├── data/                        # Directorio de datos
+│   ├── hidden_states/           # .npz con representaciones y row_indices
+│   ├── score.json               # Scores por entidad
+│   └── hidden_states_hs_*.pkl   # Salida de utils.py (DataFrame pickled)
+├── hyperparams.py               # Hiperparámetros del modelo
+├── mlp_regressor.py             # MLPRegressor de código fuente KEEN debuggeado
+├── utils.py                     # Genera los .pkl con hidden_states y metadatos
+├── main.py                      # Entrena la sonda a partir de los .pkl
+└── probe.ipynb                  # Notebook principal de experimentos
 ```
 
 ## Archivos Principales
-
-### `hyperparams.py`
-Contiene los hiperparámetros de entrenamiento:
-- `BATCH_SIZE = 32`
-- `OPTIM = "adam"`
-- `LR = 0.01`
-- `MAX_ITER = 100`
 
 ### `mlp_regressor.py`
 MLPRegressor de código fuente KEEN debuggeado, que incluye:
@@ -35,35 +27,27 @@ MLPRegressor de código fuente KEEN debuggeado, que incluye:
 - Métricas de evaluación (Pearson correlation)
 - Guardado de mejores pesos durante el entrenamiento
 
-### `probe.ipynb`
-Notebook principal con el flujo completo:
-1. **Carga de datos**: Lee vectores normalizados desde `data/filtered_vectors.npz`
-2. **Preparación de labels**: Mapea scores desde `data/score_by_entity.json` usando los índices
-3. **Split de datos**: Divide en train/test (80/20)
-4. **Entrenamiento**: Entrena el MLPRegressor con los hiperparámetros configurados
-5. **Guardado**: Exporta el modelo entrenado a `models/mlp_regressor_state_dict.pth`
-
-### `data/filter_vectors.ipynb`
-Notebook de preprocesamiento que:
-- Carga el archivo original `state_b8d56cb4aa70_hs.npz` 
-- Filtra vectores según las entidades presentes en `score_by_entity.json`
-- Genera `filtered_vectors.npz` con los vectores filtrados
+### `utils.py`
+- Combina `data/score.json` y un archivo `.npz` de `data/hidden_states/` (llaves `PATHS`: `en`, `es`, `paper`).
+- Produce un DataFrame de pandas pickled (`data/hidden_states_hs_<key>.pkl`) con columnas:
+  - `subject`, `country`, `accuracy`, `total_examples`
+  - `hidden_states` (`numpy.ndarray` de la representación normalizada)
+- Uso: `python utils.py <en|es|paper>` y luego `pd.read_pickle("data/hidden_states_hs_<key>.pkl")`.
 
 ## Datos
 
 ### Formato de Datos
-- **`filtered_vectors.npz`**: Contiene:
-  - `representations_normalized`: Array NumPy con vectores de representación normalizados
-  - `row_indices`: Índices que mapean a las entidades en `score_by_entity.json`
+- **`hidden_states_hs_<key>.npz`**: Contiene `representations_normalized` y `row_indices` (índices para cruzar con `score.json`).
+- **`score.json`**: Lista de objetos con llaves `entidad`, `pais`, `score`, `vector_index`, `total_preguntas`.
+- **`hidden_states_hs_<key>.pkl`**: DataFrame pickled con las columnas anteriores más `hidden_states` (`numpy.ndarray`).
 
-- **`score_by_entity.json`**: Lista de objetos con estructura:
-  ```json
-  {
-    "entidad": "nombre_entidad",
-    "vector_index": 123,
-    "score": 0.75
-  }
-  ```
+## Generación y entrenamiento rápidos
+
+1. Generar el DataFrame pickled:
+   - `python utils.py paper` (o `en`, `es`).
+2. Entrenar la sonda con los datos pickled:
+   - `python main.py --prompt paper --learning_rate 0.01 --max_iter 100 --batch_size 32`
+   - `--country` filtra por país (opcional).
 
 
 ## Características Técnicas
@@ -81,3 +65,12 @@ Notebook de preprocesamiento que:
 - pandas
 - scikit-learn
 - scipy
+
+### Versiones probadas
+- Python >= 3.12
+- torch >= 2.9.1
+- numpy >= 2.3.5
+- pandas >= 2.3.3
+- scikit-learn >= 1.7.2
+- scipy >= 1.16.3
+- wandb >= 0.23.1
