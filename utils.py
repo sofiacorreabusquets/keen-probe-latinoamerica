@@ -6,7 +6,9 @@ from typing import Dict, List, Tuple
 
 import numpy as np
 import pandas as pd
+from sklearn.model_selection import train_test_split
 
+RANDOM_SEED = 42
 PATHS = {
     "en": {
         "score": Path("data/score.json"),
@@ -24,6 +26,19 @@ PATHS = {
         "output": Path("data/hidden_states_hs_es.pkl"),
     }
 }
+
+def split_dataset_into_train_val_test(dataset, country=None, region=None):
+    # Split in 65% train, 15% validation, 20% test
+    if country:
+        dataset = dataset[dataset["country"] == country]
+    elif region:
+        if region == "usa":
+            dataset = dataset[dataset["country"] == "usa"]
+        else:  # latam
+            dataset = dataset[dataset["country"] != "usa"]
+    X_train, X_temp, y_train, y_temp = train_test_split(dataset['hidden_states'], dataset['accuracy'], test_size=0.35, random_state=RANDOM_SEED)
+    X_val, X_test, y_val, y_test = train_test_split(X_temp, y_temp, test_size=20/35, random_state=RANDOM_SEED)
+    return X_train, y_train, X_val, y_val, X_test, y_test
 
 def load_hidden_states(npz_path: Path) -> Tuple[np.ndarray, Dict[int, int]]:
     """

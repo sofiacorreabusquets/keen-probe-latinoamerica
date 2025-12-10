@@ -6,28 +6,14 @@ from sklearn.model_selection import train_test_split
 import torch
 from torch.utils.data import Dataset, DataLoader
 from mlp_regressor import MLPRegressor
+from utils import split_dataset_into_train_val_test, HiddenStatesDataset
 
-RANDOM_SEED = 42
 PATHS = {
     "en": Path("data/hidden_states_hs_en.pkl"),
     "paper": Path("data/hidden_states_hs_paper.pkl"),
     "es": Path("data/hidden_states_hs_es.pkl")
 }
 COUNTRIES = ["argentina", "chile", "colombia", "costa_rica", "cuba", "ecuador", "el_salvador", "guatemala", "honduras", "mexico", "nicaragua", "panama", "paraguay", "peru", "republica_dominicana", "usa", "venezuela"]
-
-
-def split_dataset_into_train_val_test(dataset, country=None, region=None):
-    # Split in 65% train, 15% validation, 20% test
-    if country:
-        dataset = dataset[dataset["country"] == country]
-    elif region:
-        if region == "usa":
-            dataset = dataset[dataset["country"] == "usa"]
-        else:  # latam
-            dataset = dataset[dataset["country"] != "usa"]
-    X_train, X_temp, y_train, y_temp = train_test_split(dataset['hidden_states'], dataset['accuracy'], test_size=0.35, random_state=RANDOM_SEED)
-    X_val, X_test, y_val, y_test = train_test_split(X_temp, y_temp, test_size=20/35, random_state=RANDOM_SEED)
-    return X_train, y_train, X_val, y_val, X_test, y_test
 
 class HiddenStatesDataset(Dataset):
     def __init__(self, X_train, y_train):
