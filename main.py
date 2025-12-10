@@ -72,7 +72,7 @@ if __name__ == "__main__":
         "max_iter": args.max_iter,
     }
     project = f"keen_probe_latam"
-    run_name = f"{project}_lr_{classifier_model_params['learning_rate']}_epoch_{classifier_model_params['max_iter']}"
+    run_name = f"{project}_lr_{classifier_model_params['learning_rate']}_epoch_{classifier_model_params['max_iter']}_{args.prompt}"
     if args.country:
         run_name = f"{run_name}_{args.country}"
     elif args.region:
@@ -81,6 +81,6 @@ if __name__ == "__main__":
     # Build the MLPRegressor model and train it
     model = MLPRegressor(**classifier_model_params).to(device)
     model.fit(dataloader, y_train, X_val, y_val) 
-    with open(f"probes/{project}_{run_name}_model.pkl",'wb') as f:
+    with open(f"probes/{run_name}_model.pkl",'wb') as f:
         model.set_to_best_weights()
         pickle.dump(model, f)
