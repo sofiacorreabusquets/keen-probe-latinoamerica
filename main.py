@@ -6,7 +6,6 @@ from sklearn.model_selection import train_test_split
 import torch
 from torch.utils.data import Dataset, DataLoader
 from mlp_regressor import MLPRegressor
-import wandb
 
 RANDOM_SEED = 42
 PATHS = {
@@ -17,10 +16,15 @@ PATHS = {
 COUNTRIES = ["argentina", "chile", "colombia", "costa_rica", "cuba", "ecuador", "el_salvador", "guatemala", "honduras", "mexico", "nicaragua", "panama", "paraguay", "peru", "republica_dominicana", "usa", "venezuela"]
 
 
-def split_dataset_into_train_val_test(dataset, country=None):
+def split_dataset_into_train_val_test(dataset, country=None, region=None):
     # Split in 65% train, 15% validation, 20% test
     if country:
         dataset = dataset[dataset["country"] == country]
+    elif region:
+        if region == "usa":
+            dataset = dataset[dataset["country"] == "usa"]
+        else:  # latam
+            dataset = dataset[dataset["country"] != "usa"]
     X_train, X_temp, y_train, y_temp = train_test_split(dataset['hidden_states'], dataset['accuracy'], test_size=0.35, random_state=RANDOM_SEED)
     X_val, X_test, y_val, y_test = train_test_split(X_temp, y_temp, test_size=20/35, random_state=RANDOM_SEED)
     return X_train, y_train, X_val, y_val, X_test, y_test
@@ -45,13 +49,17 @@ if __name__ == "__main__":
     parser.add_argument("--max_iter", type=int)
     parser.add_argument("--batch_size", type=int)
     parser.add_argument("--country", choices=COUNTRIES)
-    
+    parser.add_argument("--region", choices=["latam", "usa"])
+
     args = parser.parse_args()
+
+    if args.country and args.region:
+        parser.error("--country y --region son mutuamente excluyentes")
    
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")  
     
     df = pd.read_pickle(PATHS[args.prompt])
-    X_train, y_train, X_val, y_val, X_test, y_test = split_dataset_into_train_val_test(df, country=args.country)
+    X_train, y_train, X_val, y_val, X_test, y_test = split_dataset_into_train_val_test(df, country=args.country, region=args.region)
     dataset = HiddenStatesDataset(X_train, y_train)
     dataloader = DataLoader(dataset, batch_size=args.batch_size, shuffle=False, num_workers=1)
     
@@ -67,7 +75,8 @@ if __name__ == "__main__":
     run_name = f"{project}_lr_{classifier_model_params['learning_rate']}_epoch_{classifier_model_params['max_iter']}"
     if args.country:
         run_name = f"{run_name}_{args.country}"
-    # wandb.init(project=project, name=run_name, config=classifier_model_params)
+    elif args.region:
+        run_name = f"{run_name}_{args.region}"
 
     # Build the MLPRegressor model and train it
     model = MLPRegressor(**classifier_model_params).to(device)

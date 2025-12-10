@@ -13,7 +13,6 @@ import torch.nn as nn
 import torch.optim as optim
 
 import numpy as np
-import wandb
 
 import random
 from scipy.stats import pearsonr
@@ -121,5 +120,3 @@ class MLPRegressor(nn.Module):
                 self.final_test = result_df
 
             print({"test_loss": test_loss, "train_loss": epoch_train_loss, "test_pearson_corr": test_pearson_corr})     
-            # wandb.log({"test_loss": test_loss, "train_loss": epoch_train_loss, "test_pearson_corr": test_pearson_corr})
-        # wandb.finish()
