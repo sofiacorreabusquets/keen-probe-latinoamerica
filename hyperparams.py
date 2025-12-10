@@ -1,5 +1,0 @@
-BATCH_SIZE = 32
-OPTIM = "adam"
-LR = 0.01
-MAX_ITER = 100
-RANDOM_SEED = 42
