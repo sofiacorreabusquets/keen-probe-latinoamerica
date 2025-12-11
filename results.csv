@@ -56,3 +56,6 @@ en,0.01,100,100,32,,latam,probes/keen_probe_latam_lr_0.01_epoch_100_en_latam_mod
 en,0.01,100,100,32,,usa,probes/keen_probe_latam_lr_0.01_epoch_100_en_usa_model.pkl,0.06827957928180695,nan,nan
 es,0.01,100,100,32,,latam,probes/keen_probe_latam_lr_0.01_epoch_100_es_latam_model.pkl,0.024939579889178276,0.03385135,0.10315744636966581
 es,0.01,100,100,32,,usa,probes/keen_probe_latam_lr_0.01_epoch_100_es_usa_model.pkl,0.06827957928180695,-0.039705373,0.7198983069761349
+paper,0.01,100,100,32,,,probes/keen_probe_latam_lr_0.01_epoch_100_paper_model.pkl,0.032040104269981384,0.07050281,0.0005430316044164992
+en,0.01,100,100,32,,,probes/keen_probe_latam_lr_0.01_epoch_100_en_model.pkl,0.032040100544691086,0.09358451,4.322256676811514e-06
+es,0.01,100,100,32,,,probes/keen_probe_latam_lr_0.01_epoch_100_es_model.pkl,0.032040104269981384,0.048834868,0.016661643390769188
