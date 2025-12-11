@@ -6,7 +6,7 @@ from sklearn.model_selection import train_test_split
 import torch
 from torch.utils.data import Dataset, DataLoader
 from mlp_regressor import MLPRegressor
-from utils import split_dataset_into_train_val_test, HiddenStatesDataset
+from utils import split_dataset_into_train_val_test
 
 PATHS = {
     "en": Path("data/hidden_states_hs_en.pkl"),
